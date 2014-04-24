@@ -85,10 +85,6 @@ void SplashTable::put(uint32_t key, uint32_t value)
     throw SplashTable::KeyExistsException();
   }
 
-  /* keep a working copy of the elements of the buckets we are reinserting
-   * into */
-  std::map<size_t, std::queue<BucketEntry>> workingCopy;
-
   std::pair<bool, size_t> bucketSelection;
   size_t bucketId, lastBucketId;
   bool selectionSuccess;
@@ -97,8 +93,7 @@ void SplashTable::put(uint32_t key, uint32_t value)
    * reinserts, we need to avoid the current bucket */
   bool needAvoid = false;
 
-  uint32_t currentKey = key;
-  uint32_t currentValue = value;
+  uint32_t evictedKey, evictedValue;
   unsigned int reinserts = 0;
 
   while (true) {
@@ -106,55 +101,36 @@ void SplashTable::put(uint32_t key, uint32_t value)
       throw SplashTable::MaxReinsertsException();
     }
 
-    bucketSelection = bestBucket(currentKey);
+    bucketSelection = bestBucket(key);
     selectionSuccess = bucketSelection.first;
     bucketId = bucketSelection.second;
 
     /* if we couldn't find a free bucket, select a random one.
-     * if necessary, avoid using the last bucket we saw bucket */
+     * if necessary, avoid reusing the bucket we just evicted from*/
     if (!selectionSuccess) {
-      bucketId = randomBucket(currentKey, needAvoid, lastBucketId);
+      bucketId = randomBucket(key, needAvoid, lastBucketId);
     }
     Bucket &tmpBucket = buckets[bucketId];
 
-    if (workingCopy.count(bucketId) == 0) {
-      workingCopy[bucketId] = std::queue<BucketEntry>();
-      for (size_t i = 0; i < tmpBucket.length; ++i) {
-        workingCopy[bucketId].push(
-            tmpBucket.data[(tmpBucket.start + i) & bucketMask]);
-      }
-    }
-    workingCopy[bucketId].push({currentKey, currentValue});
-
     /* no more reinserts necessary */
     if (selectionSuccess) {
+      tmpBucket.data[(tmpBucket.start + tmpBucket.length) & bucketMask]
+        = { key, value };
+      ++tmpBucket.length;
       break;
     }
 
     /* otherwise, continuing reinserting and do some bookkeeping */
+    evictedKey = tmpBucket.data[tmpBucket.start].key;
+    evictedValue = tmpBucket.data[tmpBucket.start].value;
+    tmpBucket.data[tmpBucket.start] = { key, value };
+    tmpBucket.start = (tmpBucket.start + 1) & bucketMask;
+    key = evictedKey;
+    value = evictedValue;
+
     ++reinserts;
     needAvoid = true;
     lastBucketId = bucketId;
-
-    BucketEntry &oldest = workingCopy[bucketId].front();
-    currentKey = oldest.key;
-    currentValue = oldest.value;
-    workingCopy[bucketId].pop();
-  }
-
-  /* commit the working copy to the main store */
-  for (std::map<size_t, std::queue<BucketEntry>>::iterator it = workingCopy.begin();
-       it != workingCopy.end(); ++it)
-  {
-    bucketId = it->first;
-    Bucket &tmpBucket = buckets[bucketId];
-    std::queue<BucketEntry> &bucketCopy = it->second;
-
-    tmpBucket.length = bucketCopy.size();
-    for (size_t i = 0; bucketCopy.size() > 0; ++i) {
-      tmpBucket.data[(tmpBucket.start + i) & bucketMask] = bucketCopy.front();
-      bucketCopy.pop();
-    }
   }
 }
 
