@@ -2,7 +2,7 @@ CC = gcc
 CXX = g++
 CXXFLAGS = -Wall -std=c++11 -g
 LDFLAGS = -g
-LDLIBS = -lstdc++
+LDLIBS = -lstdc++ -lm
 
 .PHONY: default
 default: splash

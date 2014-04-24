@@ -33,11 +33,14 @@ private:
   std::random_device rd;
   std::default_random_engine gen;
   std::uniform_int_distribution<uint32_t> distrUint32;
+  std::uniform_real_distribution<double> distrDouble;
   uint32_t randomUint32();
+  double randomDouble();
 
   size_t hashWith(size_t function, uint32_t key);
   uint32_t compareToMask(uint32_t a, uint32_t b);
-  std::pair<size_t, bool> bestBucket(uint32_t key);
+  std::pair<bool, size_t> bestBucket(uint32_t key);
+  size_t randomBucket(uint32_t key, bool needAvoid, size_t avoidBucket);
 
 public:
   /* numHashes: number of hash functions

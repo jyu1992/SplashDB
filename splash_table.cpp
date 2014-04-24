@@ -22,7 +22,8 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
     bucketMask(bucketSize - 1u),
     tableMask(numBuckets - 1u),
 
-    gen(rd())
+    gen(rd()),
+    distrDouble(0.0, 1.0) /* restrict to the range 0-1.0 */
 
 {
   /* populate the data pointers for the bucket table */
@@ -50,6 +51,12 @@ void SplashTable::dump()
 uint32_t SplashTable::randomUint32()
 {
   return distrUint32(gen);
+}
+
+/* return a random double on range [0, 1.0) */
+double SplashTable::randomDouble()
+{
+  return distrDouble(gen);
 }
 
 /* hashes key with the multiplier in hashes[function] */
@@ -82,9 +89,14 @@ void SplashTable::put(uint32_t key, uint32_t value)
    * into */
   std::map<size_t, std::queue<BucketEntry>> workingCopy;
 
-  std::pair<size_t, bool> bucketSelection;
-  size_t bucketId;
-  bool needsReinsert;
+  std::pair<bool, size_t> bucketSelection;
+  size_t bucketId, lastBucketId;
+  bool selectionSuccess;
+
+  /* whether we have a bucket to avoid. none on the first insert, but for
+   * reinserts, we need to avoid the current bucket */
+  bool needAvoid = false;
+
   uint32_t currentKey = key;
   uint32_t currentValue = value;
   unsigned int reinserts = 0;
@@ -95,9 +107,14 @@ void SplashTable::put(uint32_t key, uint32_t value)
     }
 
     bucketSelection = bestBucket(currentKey);
-    bucketId = bucketSelection.first;
-    needsReinsert = bucketSelection.second;
+    selectionSuccess = bucketSelection.first;
+    bucketId = bucketSelection.second;
 
+    /* if we couldn't find a free bucket, select a random one.
+     * if necessary, avoid using the last bucket we saw bucket */
+    if (!selectionSuccess) {
+      bucketId = randomBucket(currentKey, needAvoid, lastBucketId);
+    }
     Bucket &tmpBucket = buckets[bucketId];
 
     if (workingCopy.count(bucketId) == 0) {
@@ -109,10 +126,15 @@ void SplashTable::put(uint32_t key, uint32_t value)
     }
     workingCopy[bucketId].push({currentKey, currentValue});
 
-    if (!needsReinsert) {
+    /* no more reinserts necessary */
+    if (selectionSuccess) {
       break;
     }
+
+    /* otherwise, continuing reinserting and do some bookkeeping */
     ++reinserts;
+    needAvoid = true;
+    lastBucketId = bucketId;
 
     BucketEntry &oldest = workingCopy[bucketId].front();
     currentKey = oldest.key;
@@ -136,11 +158,15 @@ void SplashTable::put(uint32_t key, uint32_t value)
   }
 }
 
-/* given a key, finds the best bucket to place it in (the least loaded). if all
- * are loaded, select one at random. returns a pair (x, y) such that x is the
- * bucket index and y is a boolean, describing whether a reinsert is necessary
+/* given a key, finds the best bucket to place it in (the least loaded).
+ *
+ * first value is a boolean representing success, second value is the index of
+ * the selected bucket.
+ *
+ * if first value is false, then all buckets are loaded, and the second value
+ * is undefined.
  */
-std::pair<size_t, bool> SplashTable::bestBucket(uint32_t key)
+std::pair<bool, size_t> SplashTable::bestBucket(uint32_t key)
 {
   bool foundFree = false;
   size_t bestBucket;
@@ -160,12 +186,43 @@ std::pair<size_t, bool> SplashTable::bestBucket(uint32_t key)
     }
   }
 
-  if (foundFree) {
-    return std::make_pair(bestBucket, false);
-  } else{
-    return std::make_pair(hashWith(randomUint32() % numHashes, key),
-        true);
+  return std::make_pair(foundFree, bestBucket);
+}
+
+/* given a key, randomly return one of the buckets that it hashes to. this
+ * function should only be called after bestBucket() has been called and no
+ * unloaded bucket was found.
+ *
+ * the second parameter is a boolean describing whether we need to avoid a
+ * particular bucket.
+ *
+ * if parameter 2 is true, the third parameter is the index of the bucket to
+ * avoid - this bucket is only returned if there is no alternative
+ */
+size_t SplashTable::randomBucket(uint32_t key, bool needAvoid,
+    size_t avoidBucket = 0)
+{
+  size_t bucketId, tmpBucketId;
+  double tryNum = 1.0;
+  bool success = false;
+
+  /* start at try 1 and continue until we run out of valid potential
+   * buckets, maintining a result. on try n, replace the result with our
+   * current bucket with probability (1/n). this gives a random distribution
+   * over the valid buckets */
+  for (size_t hashId = 0; hashId < numHashes; ++hashId) {
+    tmpBucketId = hashWith(hashId, key);
+    if (!needAvoid || tmpBucketId != avoidBucket) {
+      success = true;
+      if (randomDouble() < 1.0 / tryNum) {
+        bucketId = tmpBucketId;
+      }
+      tryNum += 1.0;
+    }
   }
+
+  /* return the undesirable bucket only if necessary */
+  return (success) ? bucketId : avoidBucket;
 }
 
 uint32_t SplashTable::get(uint32_t key)
