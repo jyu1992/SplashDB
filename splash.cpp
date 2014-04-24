@@ -60,6 +60,6 @@ int main(int argc, char **argv)
   uint32_t key, value;
   while (std::getline(input, line)) {
     std::stringstream(line) >> key >> value;
-    st.put(key, value);
+    st.insert(key, value);
   }
 }

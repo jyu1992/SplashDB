@@ -51,8 +51,8 @@ public:
   SplashTable(size_t numHashes, size_t numBuckets, size_t bucketSize,
       unsigned int maxReinserts);
 
-  void put(uint32_t key, uint32_t value);
-  uint32_t get(uint32_t key);
+  void insert(uint32_t key, uint32_t value);
+  uint32_t probe(uint32_t key);
   void dump();
 
   class MaxReinsertsException : public std::exception {

@@ -77,11 +77,10 @@ uint32_t SplashTable::compareToMask(uint32_t a, uint32_t b)
   return (uint32_t) -(a == b);
 }
 
-// TODO: this function performs a TON of unnecessary copy operations
 // TODO: should we place keys and values in separate arrays to optimize cache?
-void SplashTable::put(uint32_t key, uint32_t value)
+void SplashTable::insert(uint32_t key, uint32_t value)
 {
-  if (get(key) != 0) {
+  if (probe(key) != 0) {
     throw SplashTable::KeyExistsException();
   }
 
@@ -201,7 +200,7 @@ size_t SplashTable::randomBucket(uint32_t key, bool needAvoid,
   return (success) ? bucketId : avoidBucket;
 }
 
-uint32_t SplashTable::get(uint32_t key)
+uint32_t SplashTable::probe(uint32_t key)
 {
   uint32_t result = 0;
 
