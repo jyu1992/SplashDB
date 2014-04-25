@@ -291,9 +291,9 @@ uint32_t SplashTable::probe(uint32_t key)
   /* look through all possible buckets to find the key */
   for (size_t hashId = 0; hashId < numHashes; ++hashId) {
     Bucket &bucket = buckets[hashWith(hashId, key)];
-    for (size_t i = 0; i < bucket.length; ++i) {
-      size_t tmpKey = bucket.keys[(bucket.start + i) & bucketMask];
-      size_t tmpValue = bucket.values[(bucket.start + i) & bucketMask];
+    for (size_t i = 0; i < bucketSize; ++i) {
+      size_t tmpKey = bucket.keys[i];
+      size_t tmpValue = bucket.values[i];
 
       /* if tmpKey and key are equal, the mask is 111... this sets result
        * (which is previously 0) to tmpValue. if not equal, mask is 000... and
