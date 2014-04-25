@@ -160,7 +160,6 @@ void SplashTable::build(std::istream &input)
   }
 }
 
-// TODO: should we place keys and values in separate arrays to optimize cache?
 void SplashTable::insert(uint32_t key, uint32_t value)
 {
   if (probe(key) != 0) {

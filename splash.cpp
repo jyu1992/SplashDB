@@ -56,7 +56,15 @@ int main(int argc, char **argv)
   }
 
   SplashTable st(h, (1u << s) / b, b, r);
-  st.build(input);
+  try {
+    st.build(input);
+  } catch (SplashTable::MaxReinsertsException) {
+    std::cerr << "Notice: max reinserts reached, table build "
+      "terminating early\n";
+  } catch (SplashTable::KeyExistsException) {
+    std::cerr << "Notice: attempted to insert duplicate key, table "
+      "build terminating early\n";
+  }
 
   /* read the probe input and print results */
   std::string line;
