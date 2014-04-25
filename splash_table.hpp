@@ -7,22 +7,18 @@
 #include <random>
 #include <utility>
 
-struct BucketEntry {
-  uint32_t key, value;
-};
-
 /* stored as a circular array using (start, length)
  * allows easy removal of items from the beginning during reinsert
  */
 struct Bucket {
   size_t start, length;
-  BucketEntry *data;
+  uint32_t *keys, *values;
 };
 
 class SplashTable {
 private:
   std::vector<Bucket> buckets;
-  std::unique_ptr<BucketEntry[]> data;
+  std::unique_ptr<uint32_t[]> data;
   std::vector<uint32_t> hashes;
 
   const size_t numHashes, numBuckets, bucketSize;
