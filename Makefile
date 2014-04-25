@@ -13,9 +13,11 @@ splash.o: splash_table.hpp
 
 splash_table.o: splash_table.hpp
 
+randomizer:
+
 .PHONY: clean
 clean:
-	rm -f splash *.o
+	rm -f splash randomizer *.o
 
 .PHONY: all
-all: clean default
+all: splash randomizer
