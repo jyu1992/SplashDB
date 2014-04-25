@@ -16,6 +16,7 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
     numBuckets(numBuckets),
     bucketSize(bucketSize),
     maxReinserts(maxReinserts),
+    size(0),
 
     /* since these are powers of 2, subtracting 1 yields a bitmask that
      * when ANDed with a value is equivalent to taking the value modulo

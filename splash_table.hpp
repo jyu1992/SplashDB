@@ -13,6 +13,7 @@
  * allows easy removal of items from the beginning during reinsert
  */
 struct Bucket {
+  Bucket() : start(0), length(0), keys(NULL), values(NULL) { }
   size_t start, length;
   uint32_t *keys, *values;
 };
