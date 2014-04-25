@@ -48,6 +48,7 @@ int main(int argc, char **argv)
     std::exit(1);
   }
 
+  /* read the input file and build the table */
   std::ifstream input(argv[5]);
   if (!input.good()) {
     std::cerr << "input file \"" << argv[5] << "\" not found" <<std::endl;
@@ -55,11 +56,13 @@ int main(int argc, char **argv)
   }
 
   SplashTable st(h, (1u << s) / b, b, r);
+  st.build(input);
 
+  /* read the probe input and print results */
   std::string line;
-  uint32_t key, value;
-  while (std::getline(input, line)) {
-    std::stringstream(line) >> key >> value;
-    st.insert(key, value);
+  uint32_t value;
+  while (std::getline(std::cin, line)) {
+    std::stringstream(line) >> value;
+    std::cout << value << '\n';
   }
 }

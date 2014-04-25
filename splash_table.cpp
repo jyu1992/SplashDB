@@ -1,5 +1,5 @@
-#include <map>
-#include <queue>
+#include <string>
+#include <sstream>
 
 #include "splash_table.hpp"
 
@@ -80,6 +80,16 @@ size_t SplashTable::hashWith(size_t function, uint32_t key)
 uint32_t SplashTable::compareToMask(uint32_t a, uint32_t b)
 {
   return (uint32_t) -(a == b);
+}
+
+void SplashTable::build(std::istream &input)
+{
+  std::string line;
+  uint32_t key, value;
+  while (std::getline(input, line)) {
+    std::stringstream(line) >> key >> value;
+    insert(key, value);
+  }
 }
 
 // TODO: should we place keys and values in separate arrays to optimize cache?

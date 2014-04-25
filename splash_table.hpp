@@ -6,6 +6,7 @@
 #include <memory>
 #include <random>
 #include <utility>
+#include <istream>
 
 /* stored as a circular array using (start, length)
  * allows easy removal of items from the beginning during reinsert
@@ -47,6 +48,10 @@ public:
   SplashTable(size_t numHashes, size_t numBuckets, size_t bucketSize,
       unsigned int maxReinserts);
 
+  /* accepts an input stream, which contains lines of the format
+   * 'key <whitespace> value' representing entries to be inserted
+   */
+  void build(std::istream &input);
   void insert(uint32_t key, uint32_t value);
   uint32_t probe(uint32_t key);
   void dump();
