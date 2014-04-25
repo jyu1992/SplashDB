@@ -9,7 +9,7 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
     size_t bucketSize, unsigned int maxReinserts)
 
   : buckets(numBuckets),
-    data(new uint32_t[numBuckets * bucketSize * 2]),
+    data(new uint32_t[numBuckets * bucketSize * 2]()),
     hashes(numHashes),
 
     numHashes(numHashes),
