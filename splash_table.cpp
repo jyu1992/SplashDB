@@ -107,10 +107,9 @@ void SplashTable::dump(std::ostream &output)
        it != buckets.end(); ++it)
   {
     const Bucket &tmpBucket = *it;
-    for (size_t offset = 0; offset < tmpBucket.length; ++offset) {
-      size_t index = (tmpBucket.start + offset) & bucketMask;
-      output << tmpBucket.keys[index] << ' '
-             << tmpBucket.values[index] << '\n';
+    for (size_t i = 0; i < bucketSize; ++i) {
+      output << tmpBucket.keys[i] << ' '
+             << tmpBucket.values[i] << '\n';
     }
   }
 }
