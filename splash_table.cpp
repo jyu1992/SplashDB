@@ -51,6 +51,42 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
   }
 }
 
+SplashTable *SplashTable::fromFile(std::istream &input)
+{
+  size_t b, s, h;
+  std::string line;
+  uint32_t t1, t2;
+
+  std::getline(input, line);
+  std::stringstream(line) >> b >> s >> h;
+
+  SplashTable *st = new SplashTable(h, (1u << s) / b, b, 0);
+
+  /* restore the hash functions */
+  std::getline(input, line);
+  std::stringstream ss(line);
+  for (std::vector<uint32_t>::iterator it = st->hashes.begin();
+       it != st->hashes.end(); ++it)
+  {
+    ss >> t1;
+    *it = t1;
+  }
+
+  for (std::vector<Bucket>::iterator it = st->buckets.begin();
+       it != st->buckets.end(); ++it)
+  {
+    Bucket &tmpBucket = *it;
+    for (size_t i = 0; i < b; ++i) {
+      std::getline(input, line);
+      std::stringstream(line) >> t1 >> t2;
+      tmpBucket.keys[i] = t1;
+      tmpBucket.values[i] = t2;
+    }
+  }
+
+  return st;
+}
+
 void SplashTable::dump(std::ostream &output)
 {
   /* print the header */

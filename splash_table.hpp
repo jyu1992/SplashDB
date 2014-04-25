@@ -50,6 +50,10 @@ public:
   SplashTable(size_t numHashes, size_t numBuckets, size_t bucketSize,
       unsigned int maxReinserts);
 
+  /* restore table from dumpfile into a new SplashTable
+   * and return it */
+  static SplashTable *fromFile(std::istream &input);
+
   /* accepts an input stream, which contains lines of the format
    * 'key <whitespace> value' representing entries to be inserted
    */
