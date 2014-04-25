@@ -53,14 +53,15 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
 
 SplashTable *SplashTable::fromFile(std::istream &input)
 {
-  size_t b, s, h;
+  size_t b, s, h, n;
   std::string line;
   uint32_t t1, t2;
 
   std::getline(input, line);
-  std::stringstream(line) >> b >> s >> h;
+  std::stringstream(line) >> b >> s >> h >> n;
 
   SplashTable *st = new SplashTable(h, (1u << s) / b, b, 0);
+  st->size = n;
 
   /* restore the hash functions */
   std::getline(input, line);
