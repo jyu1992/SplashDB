@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     std::exit(1);
   }
 
-  std::unique_ptr<const SplashTable> st(SplashTable::fromFile(dumpfile));
+  std::shared_ptr<const SplashTable> st = SplashTable::fromFile(dumpfile);
 
   /* read the probe input and print results */
   std::string line;

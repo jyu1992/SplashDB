@@ -57,7 +57,7 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
  * note: the returned table is not insert safe, which is why it
  * must be const
  */
-const SplashTable *SplashTable::fromFile(std::istream &input)
+std::shared_ptr<const SplashTable> SplashTable::fromFile(std::istream &input)
 {
   size_t b, s, h, n;
   std::string line;
@@ -91,7 +91,7 @@ const SplashTable *SplashTable::fromFile(std::istream &input)
     }
   }
 
-  return st;
+  return std::shared_ptr<const SplashTable>(st);
 }
 
 void SplashTable::dump(std::ostream &output) const

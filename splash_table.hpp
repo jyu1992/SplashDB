@@ -52,7 +52,7 @@ public:
 
   /* restore table from dumpfile into a new SplashTable
    * and return it */
-  static const SplashTable *fromFile(std::istream &input);
+  static std::shared_ptr<const SplashTable> fromFile(std::istream &input);
 
   /* accepts an input stream, which contains lines of the format
    * 'key <whitespace> value' representing entries to be inserted
