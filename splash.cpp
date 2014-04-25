@@ -51,7 +51,7 @@ int main(int argc, char **argv)
   /* read the input file and build the table */
   std::ifstream input(argv[5]);
   if (!input.good()) {
-    std::cerr << "input file \"" << argv[5] << "\" not found" <<std::endl;
+    std::cerr << "could not open file \"" << argv[5] << "\"\n";
     std::exit(1);
   }
 
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   uint32_t value;
   while (std::getline(std::cin, line)) {
     std::stringstream(line) >> value;
-    std::cout << value << '\n';
+    std::cout << st.probe(value) << '\n';
   }
 
   if (argc > 6) {
