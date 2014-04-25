@@ -65,4 +65,13 @@ int main(int argc, char **argv)
     std::stringstream(line) >> value;
     std::cout << value << '\n';
   }
+
+  if (argc > 6) {
+    std::ofstream dumpFile(argv[6]);
+    if (!dumpFile.good()) {
+      std::cerr << "dump file \"" << argv[5]
+                << "\" could not be opened for writing\n";
+    }
+    st.dump(dumpFile);
+  }
 }

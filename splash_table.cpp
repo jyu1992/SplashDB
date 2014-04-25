@@ -1,6 +1,8 @@
 #include <string>
 #include <sstream>
 
+#include <x86intrin.h>
+
 #include "splash_table.hpp"
 
 SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
@@ -49,8 +51,31 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
   }
 }
 
-void SplashTable::dump()
+void SplashTable::dump(std::ostream &output)
 {
+  /* print the header */
+  output << bucketSize << ' ' << __builtin_ctz(numBuckets * bucketSize) << ' '
+         << numHashes << ' ' << size << '\n';
+
+  /* print hashes */
+  for (std::vector<uint32_t>::const_iterator it = hashes.begin();
+       it != hashes.end(); ++it)
+  {
+    output << *it << ' ';
+  }
+  output << '\n';
+
+  /* print buckets */
+  for (std::vector<Bucket>::const_iterator it = buckets.begin();
+       it != buckets.end(); ++it)
+  {
+    const Bucket &tmpBucket = *it;
+    for (size_t offset = 0; offset < tmpBucket.length; ++offset) {
+      size_t index = (tmpBucket.start + offset) & bucketMask;
+      output << tmpBucket.keys[index] << ' '
+             << tmpBucket.values[index] << '\n';
+    }
+  }
 }
 
 uint32_t SplashTable::randomUint32()
@@ -152,6 +177,8 @@ void SplashTable::insert(uint32_t key, uint32_t value)
     needAvoid = true;
     lastBucketId = bucketId;
   }
+
+  ++size;
 }
 
 /* given a key, finds the best bucket to place it in (the least loaded).

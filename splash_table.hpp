@@ -7,6 +7,7 @@
 #include <random>
 #include <utility>
 #include <istream>
+#include <ostream>
 
 /* stored as a circular array using (start, length)
  * allows easy removal of items from the beginning during reinsert
@@ -24,6 +25,7 @@ private:
 
   const size_t numHashes, numBuckets, bucketSize;
   const unsigned int maxReinserts;
+  size_t size;
 
   const size_t bucketMask, tableMask;
 
@@ -54,7 +56,9 @@ public:
   void build(std::istream &input);
   void insert(uint32_t key, uint32_t value);
   uint32_t probe(uint32_t key);
-  void dump();
+
+  /* accepts an output stream to which we will write the dump */
+  void dump(std::ostream &output);
 
   class MaxReinsertsException : public std::exception {
     virtual const char *what() const throw()
