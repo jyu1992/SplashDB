@@ -51,7 +51,13 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
   }
 }
 
-SplashTable *SplashTable::fromFile(std::istream &input)
+/* creates a new splashtable on the heap and restores it from
+ * the given input stream following the dump format.
+ *
+ * note: the returned table is not insert safe, which is why it
+ * must be const
+ */
+const SplashTable *SplashTable::fromFile(std::istream &input)
 {
   size_t b, s, h, n;
   std::string line;
@@ -88,7 +94,7 @@ SplashTable *SplashTable::fromFile(std::istream &input)
   return st;
 }
 
-void SplashTable::dump(std::ostream &output)
+void SplashTable::dump(std::ostream &output) const
 {
   /* print the header */
   output << bucketSize << ' ' << __builtin_ctz(numBuckets * bucketSize) << ' '
@@ -126,7 +132,7 @@ double SplashTable::randomDouble()
 }
 
 /* hashes key with the multiplier in hashes[function] */
-size_t SplashTable::hashWith(size_t function, uint32_t key)
+size_t SplashTable::hashWith(size_t function, uint32_t key) const
 {
   /* multiply to a 32 bit value */
   uint32_t hash = key * hashes[function];
@@ -225,7 +231,7 @@ void SplashTable::insert(uint32_t key, uint32_t value)
  * if first value is false, then all buckets are loaded, and the second value
  * is undefined.
  */
-std::pair<bool, size_t> SplashTable::bestBucket(uint32_t key)
+std::pair<bool, size_t> SplashTable::bestBucket(uint32_t key) const
 {
   bool foundFree = false;
   size_t bestBucket;
@@ -234,7 +240,7 @@ std::pair<bool, size_t> SplashTable::bestBucket(uint32_t key)
   /* try all hashes */
   for (size_t hashId = 0; hashId < numHashes; ++hashId) {
     size_t bucketId = hashWith(hashId, key);
-    Bucket &bucket = buckets[bucketId];
+    const Bucket &bucket = buckets[bucketId];
     if (foundFree && bucket.length < minLoad) {
       bestBucket = bucketId;
       minLoad = bucket.length;
@@ -284,13 +290,13 @@ size_t SplashTable::randomBucket(uint32_t key, bool needAvoid,
   return (success) ? bucketId : avoidBucket;
 }
 
-uint32_t SplashTable::probe(uint32_t key)
+uint32_t SplashTable::probe(uint32_t key) const
 {
   uint32_t result = 0;
 
   /* look through all possible buckets to find the key */
   for (size_t hashId = 0; hashId < numHashes; ++hashId) {
-    Bucket &bucket = buckets[hashWith(hashId, key)];
+    const Bucket &bucket = buckets[hashWith(hashId, key)];
     for (size_t i = 0; i < bucketSize; ++i) {
       size_t tmpKey = bucket.keys[i];
       size_t tmpValue = bucket.values[i];

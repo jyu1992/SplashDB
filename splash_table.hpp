@@ -36,9 +36,9 @@ private:
   uint32_t randomUint32();
   double randomDouble();
 
-  size_t hashWith(size_t function, uint32_t key);
-  uint32_t compareToMask(uint32_t a, uint32_t b);
-  std::pair<bool, size_t> bestBucket(uint32_t key);
+  size_t hashWith(size_t function, uint32_t key) const;
+  static uint32_t compareToMask(uint32_t a, uint32_t b);
+  std::pair<bool, size_t> bestBucket(uint32_t key) const;
   size_t randomBucket(uint32_t key, bool needAvoid, size_t avoidBucket);
 
 public:
@@ -52,17 +52,17 @@ public:
 
   /* restore table from dumpfile into a new SplashTable
    * and return it */
-  static SplashTable *fromFile(std::istream &input);
+  static const SplashTable *fromFile(std::istream &input);
 
   /* accepts an input stream, which contains lines of the format
    * 'key <whitespace> value' representing entries to be inserted
    */
   void build(std::istream &input);
   void insert(uint32_t key, uint32_t value);
-  uint32_t probe(uint32_t key);
+  uint32_t probe(uint32_t key) const;
 
   /* accepts an output stream to which we will write the dump */
-  void dump(std::ostream &output);
+  void dump(std::ostream &output) const;
 
   class MaxReinsertsException : public std::exception {
     virtual const char *what() const throw()
