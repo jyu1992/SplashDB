@@ -21,6 +21,6 @@ int main(int argc, char **argv)
   std::uniform_int_distribution<uint32_t> distr;
 
   for (int i = 0; i < n; ++i) {
-    std::cout << distr(gen) << ' ' << distr(gen) << '\n';
+    std::cout << distr(gen) << '\n';
   }
 }
