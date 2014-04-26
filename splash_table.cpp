@@ -24,6 +24,7 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
      */
     bucketMask(bucketSize - 1u),
     tableMask(numBuckets - 1u),
+    hashShift(__builtin_clz(tableMask)),
 
     gen(rd()),
     distrDouble(0.0, 1.0) /* restrict to the range 0-1.0 */
@@ -137,10 +138,7 @@ size_t SplashTable::hashWith(size_t function, uint32_t key) const
 {
   /* multiply to a 32 bit value */
   uint32_t hash = key * hashes[function];
-
-  /* interpret this as a decimal fraction of 1 and multiply it by the
-   * table size */
-  return (size_t) ((uint64_t) hash * numBuckets) >> 32;
+  return (size_t) (hash >> hashShift);
 }
 
 /* compares 2 values and returns a bitmask of all 0's if they are not equal, or

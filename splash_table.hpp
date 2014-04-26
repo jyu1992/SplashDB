@@ -13,7 +13,6 @@
  * allows easy removal of items from the beginning during reinsert
  */
 struct Bucket {
-  Bucket() : start(0), length(0), keys(NULL), values(NULL) { }
   size_t start, length;
   uint32_t *keys, *values;
 };
@@ -29,11 +28,13 @@ private:
   size_t size;
 
   const size_t bucketMask, tableMask;
+  const unsigned int hashShift;
 
   std::random_device rd;
   std::default_random_engine gen;
   std::uniform_int_distribution<uint32_t> distrUint32;
   std::uniform_real_distribution<double> distrDouble;
+
   uint32_t randomUint32();
   double randomDouble();
 
