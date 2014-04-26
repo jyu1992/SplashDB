@@ -55,25 +55,31 @@ int main(int argc, char **argv)
     std::exit(1);
   }
 
+  bool shouldProbe = true;;
+
   SplashTable st(h, (1u << s) / b, b, r);
   try {
     st.build(input);
   } catch (SplashTable::MaxReinsertsException) {
     std::cerr << "Notice: max reinserts reached, table build "
       "terminating early\n";
+    shouldProbe = false;
   } catch (SplashTable::KeyExistsException) {
     std::cerr << "Notice: attempted to insert duplicate key, table "
       "build terminating early\n";
+    shouldProbe = false;
   }
 
   /* read the probe input and print results */
-  std::string line;
-  uint32_t key, value;
-  while (std::getline(std::cin, line)) {
-    std::stringstream(line) >> key;
-    value = st.probe(key);
-    if (value != 0) {
-      std::cout << key << ' ' << value << '\n';
+  if (shouldProbe) {
+    std::string line;
+    uint32_t key, value;
+    while (std::getline(std::cin, line)) {
+      std::stringstream(line) >> key;
+      value = st.probe(key);
+      if (value != 0) {
+        std::cout << key << ' ' << value << '\n';
+      }
     }
   }
 
