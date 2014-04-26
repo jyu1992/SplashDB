@@ -15,15 +15,15 @@ union QuadInt {
   uint32_t arr[4];
 };
 
-FILE *dumpfile = NULL;
-char *buffer = NULL;
-struct Bucket *buckets = NULL;
-uint32_t *data = NULL;
+static FILE *dumpfile = NULL;
+static char *buffer = NULL;
+static struct Bucket *buckets = NULL;
+static uint32_t *data = NULL;
 
-size_t b, s, h, n;
-size_t bucketCount;
-union QuadInt hashes;
-size_t hashShift;
+static size_t b, s, h, n;
+static size_t bucketCount;
+static union QuadInt hashes;
+static size_t hashShift;
 
 uint32_t probe(uint32_t key)
 {
