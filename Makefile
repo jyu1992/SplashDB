@@ -1,6 +1,6 @@
 CC = gcc
 CXX = g++
-CXXFLAGS = -Wall -std=c++11 -g
+CXXFLAGS = -Wall -std=c++11 -msse4.2 -g
 LDFLAGS = -g
 LDLIBS = -lstdc++ -lm
 

@@ -22,6 +22,7 @@ private:
   std::vector<Bucket> buckets;
   std::unique_ptr<uint32_t[]> data;
   std::vector<uint32_t> hashes;
+  __m128i hashVector;
 
   const size_t numHashes, numBuckets, bucketSize;
   const unsigned int maxReinserts;
@@ -62,6 +63,9 @@ public:
   void build(std::istream &input);
   void insert(uint32_t key, uint32_t value);
   uint32_t probe(uint32_t key) const;
+
+  /* this only works on tables for which numHashes = 2 and bucketSize = 4 */
+  uint32_t vectorProbe(uint32_t key) const;
 
   /* accepts an output stream to which we will write the dump */
   void dump(std::ostream &output) const;

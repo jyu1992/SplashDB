@@ -25,6 +25,6 @@ int main(int argc, char **argv)
   uint32_t value;
   while (std::getline(std::cin, line)) {
     std::stringstream(line) >> value;
-    std::cout << st->probe(value) << '\n';
+    std::cout << st->vectorProbe(value) << '\n';
   }
 }

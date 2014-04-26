@@ -1,7 +1,9 @@
 #include <string>
 #include <sstream>
 
+extern "C" {
 #include <x86intrin.h>
+}
 
 #include "splash_table.hpp"
 
@@ -51,6 +53,10 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
     /* create a 32 bit odd number for hashing */
     *it = randomUint32() * 2u + 1u;
   }
+
+  /* fill in the hash vector
+   * our vector operations support only 2 hash functions */
+  hashVector = _mm_set_epi32(0, 0, hashes[1], hashes[0]);
 }
 
 /* creates a new splashtable on the heap and restores it from
@@ -80,6 +86,9 @@ std::shared_ptr<const SplashTable> SplashTable::fromFile(std::istream &input)
     ss >> t1;
     *it = t1;
   }
+
+  /* restore the vector of hashes */
+  st->hashVector = _mm_set_epi32(0, 0, st->hashes[1], st->hashes[0]);
 
   for (std::vector<Bucket>::iterator it = st->buckets.begin();
        it != st->buckets.end(); ++it)
@@ -307,4 +316,45 @@ uint32_t SplashTable::probe(uint32_t key) const
   }
 
   return result;
+}
+
+union QuadInt {
+  __m128i vec128;
+  __m64 vec64[2];
+  uint32_t arr[4];
+};
+
+/* uses SSE intrinsics. assumes numHashes = 2 and bucketSize = 4, if this
+ * is not the case then behavior is undefined */
+uint32_t SplashTable::vectorProbe(uint32_t key) const
+{
+  /* create a vector with all values initialized to key */
+  __m128i keyVector = _mm_set1_epi32(key);
+
+  /* find the appropriate buckets using multiplicative hashing */
+  __m128i bucketIds = _mm_mullo_epi32(keyVector, hashVector);
+  bucketIds  = _mm_srli_epi32(bucketIds, hashShift);
+  size_t b0 = _mm_extract_epi32(bucketIds, 0);
+  size_t b1 = _mm_extract_epi32(bucketIds, 1);
+
+  __m128i keys;
+  __m128i values0, values1;
+
+  /* load keys, compare with lookup key (to produce a bitmask).
+   * AND the result with the corresponding values. */
+  keys = _mm_load_si128((const __m128i *) buckets[b0].keys);
+  keys = _mm_cmpeq_epi32(keys, keyVector);
+  values0 = _mm_load_si128((const __m128i *) buckets[b0].values);
+  values0 = _mm_and_si128(values0, keys);
+
+  keys = _mm_load_si128((const __m128i *) buckets[b1].keys);
+  keys = _mm_cmpeq_epi32(keys, keyVector);
+  values1 = _mm_load_si128((const __m128i *) buckets[b1].values);
+  values1 = _mm_and_si128(values1, keys);
+
+  /* OR all of the (key AND value) pairs to get result */
+  QuadInt qi;
+  qi.vec128 = _mm_or_si128(values0, values1);
+  qi.vec64[0] = _mm_or_si64(qi.vec64[0], qi.vec64[1]);
+  return qi.arr[0] | qi.arr[1];
 }
