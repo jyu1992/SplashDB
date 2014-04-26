@@ -14,7 +14,7 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
     numBuckets(numBuckets),
     bucketSize(bucketSize),
     maxReinserts(maxReinserts),
-    size(0),
+    m_size(0),
 
     /* since these are powers of 2, subtracting 1 yields a bitmask that
      * when ANDed with a value is equivalent to taking the value modulo
@@ -59,7 +59,7 @@ void SplashTable::dump(std::ostream &output) const
 {
   /* print the header */
   output << bucketSize << ' ' << __builtin_ctz(numBuckets * bucketSize) << ' '
-         << numHashes << ' ' << size << '\n';
+         << numHashes << ' ' << m_size << '\n';
 
   /* print hashes */
   for (std::vector<uint32_t>::const_iterator it = hashes.begin();
@@ -177,7 +177,7 @@ void SplashTable::insert(uint32_t key, uint32_t value)
     lastBucketId = bucketId;
   }
 
-  ++size;
+  ++m_size;
 }
 
 /* given a key, finds the best bucket to place it in (the least loaded).

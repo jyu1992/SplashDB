@@ -30,7 +30,7 @@ private:
 
   const size_t numHashes, numBuckets, bucketSize;
   const unsigned int maxReinserts;
-  size_t size;
+  size_t m_size;
 
   const size_t bucketMask, tableMask;
   const unsigned int hashShift;
@@ -63,6 +63,7 @@ public:
   void build(std::istream &input);
   void insert(uint32_t key, uint32_t value);
   uint32_t probe(uint32_t key) const;
+  size_t size() const { return m_size; }
 
   /* accepts an output stream to which we will write the dump */
   void dump(std::ostream &output) const;

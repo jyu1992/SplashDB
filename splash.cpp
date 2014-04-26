@@ -63,10 +63,12 @@ int main(int argc, char **argv)
   } catch (SplashTable::MaxReinsertsException) {
     std::cerr << "Notice: max reinserts reached, table build "
       "terminating early\n";
+    std::cerr << "Total of " << st.size() << " successful inserts\n";
     shouldProbe = false;
   } catch (SplashTable::KeyExistsException) {
     std::cerr << "Notice: attempted to insert duplicate key, table "
       "build terminating early\n";
+    std::cerr << "Total of " << st.size() << " successful inserts\n";
     shouldProbe = false;
   }
 
