@@ -1,5 +1,6 @@
 CC = gcc
 CXX = g++
+CFLAGS = -Wall -std=c99 -msse4.2 -g
 CXXFLAGS = -Wall -std=c++11 -msse4.2 -g
 LDFLAGS = -g
 LDLIBS = -lstdc++ -lm
@@ -15,9 +16,7 @@ splash_table.o: splash_table.hpp
 
 randomizer:
 
-probe: splash_table.o
-
-probe.o: splash_table.hpp
+probe:
 
 .PHONY: clean
 clean:
