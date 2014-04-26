@@ -9,6 +9,10 @@
 #include <istream>
 #include <ostream>
 
+extern "C" {
+#include <x86intrin.h>
+}
+
 /* stored as a circular array using (start, length)
  * allows easy removal of items from the beginning during reinsert
  */

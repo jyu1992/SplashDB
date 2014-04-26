@@ -1,10 +1,6 @@
 #include <string>
 #include <sstream>
 
-extern "C" {
-#include <x86intrin.h>
-}
-
 #include "splash_table.hpp"
 
 SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
