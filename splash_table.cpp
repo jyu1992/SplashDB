@@ -55,52 +55,6 @@ SplashTable::SplashTable(size_t numHashes, size_t numBuckets,
   hashVector = _mm_set_epi32(0, 0, hashes[1], hashes[0]);
 }
 
-/* creates a new splashtable on the heap and restores it from
- * the given input stream following the dump format.
- *
- * note: the returned table is not insert safe, which is why it
- * must be const
- */
-std::shared_ptr<const SplashTable> SplashTable::fromFile(std::istream &input)
-{
-  size_t b, s, h, n;
-  std::string line;
-  uint32_t t1, t2;
-
-  std::getline(input, line);
-  std::stringstream(line) >> b >> s >> h >> n;
-
-  SplashTable *st = new SplashTable(h, (1u << s) / b, b, 0);
-  st->size = n;
-
-  /* restore the hash functions */
-  std::getline(input, line);
-  std::stringstream ss(line);
-  for (std::vector<uint32_t>::iterator it = st->hashes.begin();
-       it != st->hashes.end(); ++it)
-  {
-    ss >> t1;
-    *it = t1;
-  }
-
-  /* restore the vector of hashes */
-  st->hashVector = _mm_set_epi32(0, 0, st->hashes[1], st->hashes[0]);
-
-  for (std::vector<Bucket>::iterator it = st->buckets.begin();
-       it != st->buckets.end(); ++it)
-  {
-    Bucket &tmpBucket = *it;
-    for (size_t i = 0; i < b; ++i) {
-      std::getline(input, line);
-      std::stringstream(line) >> t1 >> t2;
-      tmpBucket.keys[i] = t1;
-      tmpBucket.values[i] = t2;
-    }
-  }
-
-  return std::shared_ptr<const SplashTable>(st);
-}
-
 void SplashTable::dump(std::ostream &output) const
 {
   /* print the header */
@@ -319,38 +273,3 @@ union QuadInt {
   __m64 vec64[2];
   uint32_t arr[4];
 };
-
-/* uses SSE intrinsics. assumes numHashes = 2 and bucketSize = 4, if this
- * is not the case then behavior is undefined */
-uint32_t SplashTable::vectorProbe(uint32_t key) const
-{
-  /* create a vector with all values initialized to key */
-  __m128i keyVector = _mm_set1_epi32(key);
-
-  /* find the appropriate buckets using multiplicative hashing */
-  __m128i bucketIds = _mm_mullo_epi32(keyVector, hashVector);
-  bucketIds  = _mm_srli_epi32(bucketIds, hashShift);
-  size_t b0 = _mm_extract_epi32(bucketIds, 0);
-  size_t b1 = _mm_extract_epi32(bucketIds, 1);
-
-  __m128i keys;
-  __m128i values0, values1;
-
-  /* load keys, compare with lookup key (to produce a bitmask).
-   * AND the result with the corresponding values. */
-  keys = _mm_load_si128((const __m128i *) buckets[b0].keys);
-  keys = _mm_cmpeq_epi32(keys, keyVector);
-  values0 = _mm_load_si128((const __m128i *) buckets[b0].values);
-  values0 = _mm_and_si128(values0, keys);
-
-  keys = _mm_load_si128((const __m128i *) buckets[b1].keys);
-  keys = _mm_cmpeq_epi32(keys, keyVector);
-  values1 = _mm_load_si128((const __m128i *) buckets[b1].values);
-  values1 = _mm_and_si128(values1, keys);
-
-  /* OR all of the (key AND value) pairs to get result */
-  QuadInt qi;
-  qi.vec128 = _mm_or_si128(values0, values1);
-  qi.vec64[0] = _mm_or_si64(qi.vec64[0], qi.vec64[1]);
-  return qi.arr[0] | qi.arr[1];
-}

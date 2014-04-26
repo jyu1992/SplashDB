@@ -57,19 +57,12 @@ public:
   SplashTable(size_t numHashes, size_t numBuckets, size_t bucketSize,
       unsigned int maxReinserts);
 
-  /* restore table from dumpfile into a new SplashTable
-   * and return it */
-  static std::shared_ptr<const SplashTable> fromFile(std::istream &input);
-
   /* accepts an input stream, which contains lines of the format
    * 'key <whitespace> value' representing entries to be inserted
    */
   void build(std::istream &input);
   void insert(uint32_t key, uint32_t value);
   uint32_t probe(uint32_t key) const;
-
-  /* this only works on tables for which numHashes = 2 and bucketSize = 4 */
-  uint32_t vectorProbe(uint32_t key) const;
 
   /* accepts an output stream to which we will write the dump */
   void dump(std::ostream &output) const;
