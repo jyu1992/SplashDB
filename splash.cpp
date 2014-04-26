@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     std::exit(1);
   }
 
-  if ((unsigned) s > sizeof(size_t) * 8 - 1) {
+  if ((unsigned) s > sizeof(uint32_t) * 8) {
     std::cerr << "S is too large" << std::endl;
     std::exit(1);
   }
