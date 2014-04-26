@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 
   /* allocate memory for table */
   buckets = calloc(bucketCount, sizeof(*buckets));
-  data = calloc((1u << s) * 2, sizeof(*data));;
+  data = calloc((1u << s) * 2, sizeof(*data));
   if (!buckets || !data) {
     perror("exiting");
     goto OUT;
