@@ -68,10 +68,13 @@ int main(int argc, char **argv)
 
   /* read the probe input and print results */
   std::string line;
-  uint32_t value;
+  uint32_t key, value;
   while (std::getline(std::cin, line)) {
-    std::stringstream(line) >> value;
-    std::cout << st.probe(value) << '\n';
+    std::stringstream(line) >> key;
+    value = st.probe(key);
+    if (value != 0) {
+      std::cout << key << ' ' << value << '\n';
+    }
   }
 
   if (argc > 6) {
