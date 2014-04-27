@@ -64,8 +64,8 @@ corresponding B values, end to end until the end of the array. There is also an
 array of Bucket structures, which serves primarily to keep pointers into the
 key and value locations of each bucket.
 
-If insertion requires an eviction, the least loaded bucket is selected. If all
-buckets are loaded, we randomly select one. We only reinsert into the same
+If insertion requires an eviction, the first free bucket found is selected. If
+all buckets are loaded, we randomly select one. We only reinsert into the same
 bucket if absolutely necessary.
 
 The probe algorithm makes use of a comparison bitmask, which performs a

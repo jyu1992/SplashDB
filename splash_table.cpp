@@ -180,7 +180,7 @@ void SplashTable::insert(uint32_t key, uint32_t value)
   ++m_size;
 }
 
-/* given a key, finds the best bucket to place it in (the least loaded).
+/* given a key, finds the best bucket to place it in (the first one).
  *
  * first value is a boolean representing success, second value is the index of
  * the selected bucket.
@@ -190,25 +190,15 @@ void SplashTable::insert(uint32_t key, uint32_t value)
  */
 std::pair<bool, size_t> SplashTable::bestBucket(uint32_t key) const
 {
-  bool foundFree = false;
-  size_t bestBucket;
-  size_t minLoad;
-
-  /* try all hashes */
+  /* return first successful match */
   for (size_t hashId = 0; hashId < numHashes; ++hashId) {
     size_t bucketId = hashWith(hashId, key);
-    const Bucket &bucket = buckets[bucketId];
-    if (foundFree && bucket.length < minLoad) {
-      bestBucket = bucketId;
-      minLoad = bucket.length;
-    } else if (!foundFree && bucket.length < bucketSize) {
-      bestBucket = bucketId;
-      minLoad = bucket.length;
-      foundFree = true;
+    if (buckets[bucketId].length < bucketSize) {
+      return std::make_pair(true, bucketId);
     }
   }
 
-  return std::make_pair(foundFree, bestBucket);
+  return std::make_pair(false, 0);
 }
 
 /* given a key, randomly return one of the buckets that it hashes to. this
