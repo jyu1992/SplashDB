@@ -1,8 +1,8 @@
 CC = gcc
 CXX = g++
-CFLAGS = -Wall -std=c99 -msse4.2 -g
-CXXFLAGS = -Wall -std=c++0x -msse4.2 -g
-LDFLAGS = -g
+CFLAGS = -Wall -std=c99 -msse4.2 -Os
+CXXFLAGS = -Wall -std=c++0x -msse4.2 -Os
+LDFLAGS =
 LDLIBS = -lstdc++ -lm
 
 .PHONY: default
