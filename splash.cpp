@@ -88,7 +88,7 @@ int main(int argc, char **argv)
   if (argc > 6) {
     std::ofstream dumpFile(argv[6]);
     if (!dumpFile.good()) {
-      std::cerr << "dump file \"" << argv[5]
+      std::cerr << "dump file \"" << argv[6]
                 << "\" could not be opened for writing\n";
     }
     st.dump(dumpFile);
