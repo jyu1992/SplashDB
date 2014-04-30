@@ -120,7 +120,8 @@ void SplashTable::build(std::istream &input)
 void SplashTable::insert(uint32_t key, uint32_t value)
 {
   if (probe(key) != 0) {
-    throw SplashTable::KeyExistsException();
+    //throw SplashTable::KeyExistsException();
+    return;
   }
 
   std::pair<bool, size_t> bucketSelection;

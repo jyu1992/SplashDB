@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-  if (argc < 6) {
+  if (argc < 5) {
     std::cerr << "Usage: " << argv[0] << " B R S h inputfile [dumpfile]\n"
               << "B: bucket size (power of 2)\n"
               << "R: maximum reinsertions\n"
@@ -49,48 +49,48 @@ int main(int argc, char **argv)
   }
 
   /* read the input file and build the table */
-  std::ifstream input(argv[5]);
-  if (!input.good()) {
-    std::cerr << "could not open file \"" << argv[5] << "\"\n";
-    std::exit(1);
-  }
+  //std::ifstream input(argv[5]);
+  //if (!input.good()) {
+  //  std::cerr << "could not open file \"" << argv[5] << "\"\n";
+  //  std::exit(1);
+  //}
 
-  bool shouldProbe = true;;
+  //bool shouldProbe = true;;
 
   SplashTable st(h, (1u << s) / b, b, r);
   try {
-    st.build(input);
+    st.build(std::cin);
   } catch (SplashTable::MaxReinsertsException) {
     std::cerr << "Notice: max reinserts reached, table build "
       "terminating early\n";
     std::cerr << "Total of " << st.size() << " successful inserts\n";
-    shouldProbe = false;
+    //shouldProbe = false;
   } catch (SplashTable::KeyExistsException) {
     std::cerr << "Notice: attempted to insert duplicate key, table "
       "build terminating early\n";
     std::cerr << "Total of " << st.size() << " successful inserts\n";
-    shouldProbe = false;
+    //shouldProbe = false;
   }
 
   /* read the probe input and print results */
-  if (shouldProbe) {
-    std::string line;
-    uint32_t key, value;
-    while (std::getline(std::cin, line)) {
-      std::stringstream(line) >> key;
-      value = st.probe(key);
-      if (value != 0) {
-        std::cout << key << ' ' << value << '\n';
-      }
-    }
-  }
+  //if (shouldProbe) {
+  //  std::string line;
+  //  uint32_t key, value;
+  //  while (std::getline(std::cin, line)) {
+  //    std::stringstream(line) >> key;
+  //    value = st.probe(key);
+  //    if (value != 0) {
+  //      std::cout << key << ' ' << value << '\n';
+  //    }
+  //  }
+  //}
 
-  if (argc > 6) {
-    std::ofstream dumpFile(argv[6]);
-    if (!dumpFile.good()) {
-      std::cerr << "dump file \"" << argv[5]
-                << "\" could not be opened for writing\n";
-    }
-    st.dump(dumpFile);
-  }
+  //if (argc > 6) {
+  //  std::ofstream dumpFile(argv[6]);
+  //  if (!dumpFile.good()) {
+  //    std::cerr << "dump file \"" << argv[5]
+  //              << "\" could not be opened for writing\n";
+  //  }
+  //  st.dump(dumpFile);
+  //}
 }

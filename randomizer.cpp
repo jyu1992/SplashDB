@@ -20,7 +20,9 @@ int main(int argc, char **argv)
   std::default_random_engine gen(rd());
   std::uniform_int_distribution<uint32_t> distr;
 
+  uint32_t x;
   for (int i = 0; i < n; ++i) {
-    std::cout << distr(gen) << '\n';
+    x = distr(gen);
+    std::cout << x << ' ' << x << '\n';
   }
 }
