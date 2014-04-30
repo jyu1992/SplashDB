@@ -11,6 +11,8 @@ int main(int argc, char **argv)
   uint32_t x;
   while (true) {
     x = distr(gen);
-    std::cout << x << ' ' << x << '\n';
+    if (0 > fprintf(stdout, "%u %u\n", x, x)) {
+      break;
+    }
   }
 }
